@@ -6,7 +6,7 @@ var fs = require ("fs");
 
 
 //Reddit-scraping class constructor
-//pass in the name of the sub redit and the max number of
+//pass in the name of the subreddit and the max number of
 //items to download
 function RedditScraper ( sub_, max_ ) {
   //private variables
