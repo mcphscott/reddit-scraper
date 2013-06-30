@@ -1,13 +1,25 @@
+//MIT license, if you really need to know.
 
 var request = require('request');
 var cheerio = require('cheerio');
 var async = require('async');
 var fs = require ("fs");
 
+//At the command line, make an images directory before
+//running. Execute the program with node, like this:
+// node r_scrape.js
+
+//Try it with the aww subreddit, the only safe subreddit
+var scraperAww = new RedditScraper('aww', 200 );
+scraperAww.scrape( function ( err ) {
+	console.log('done');
+});
 
 //Reddit-scraping class constructor
 //pass in the name of the subreddit and the max number of
-//items to download
+//images to download. The scrape method will
+//downloads images and creates a single local web page
+//for viewing all of the images.
 function RedditScraper ( sub_, max_ ) {
   //private variables
 	var sub = sub_;
@@ -25,6 +37,7 @@ function RedditScraper ( sub_, max_ ) {
 		fs.exists(dir, function (exists) {
 			if (!exists) {
 				fs.mkdir( dir, function ( err ) {
+					console.log("Could not create images directory (" + dir+ "):" +err);
 					callback_(err);
 				});
 			} else {
@@ -97,12 +110,6 @@ function RedditScraper ( sub_, max_ ) {
 		
 	};
 }
-
-var scraperAww = new RedditScraper('aww', 200 );
-
-scraperAww.scrape( function ( err ) {
-	console.log('done');
-});
 
 
 
