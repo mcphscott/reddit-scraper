@@ -27,7 +27,7 @@ function RedditScraper ( sub_, max_ ) {
 	var cnt = 0;
 	var max = max_;
 	var myPage = "<ul>";
-	
+	var activeDownloads = 0;
 	
 	var stampedName = sub + "_" + new Date().getTime();
 	var dir = "images/" + stampedName + "/";
@@ -37,7 +37,9 @@ function RedditScraper ( sub_, max_ ) {
 		fs.exists(dir, function (exists) {
 			if (!exists) {
 				fs.mkdir( dir, function ( err ) {
-					console.log("Could not create images directory (" + dir+ "):" +err);
+					if ( err ) {
+						console.log("Could not create images directory (" + dir+ "):" +err);
+					}
 					callback_(err);
 				});
 			} else {
@@ -97,7 +99,16 @@ function RedditScraper ( sub_, max_ ) {
 				var localImagePath = dir + localImageName;
 				
 				//download the image
-				request(href).pipe(fs.createWriteStream( localImagePath ));				
+				
+				activeDownloads ++;
+				console.log("downloading " + href + ", active downloads: "+ activeDownloads);
+				request(href, function(error) {
+					console.log("downloaded " + href +", active downloads: " + activeDownloads);
+					activeDownloads --;
+					if ( error || res.statusCode != 200) {
+						console.log(error) // Print the web page.
+					}
+				}).pipe(fs.createWriteStream( localImagePath ));				
 				
 				myPage += "<li>"+text+"<img src=\"" + localImageName+"\"></li>";				
 			});
