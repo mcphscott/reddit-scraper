@@ -10,7 +10,8 @@ var fs = require ("fs");
 // node r_scrape.js
 
 //Try it with the aww subreddit, the only safe subreddit
-var scraperAww = new RedditScraper('aww', 200 );
+var scraperAww = new RedditScraper('aww', 0 , 200 );
+
 scraperAww.scrape( function ( err ) {
 	console.log('done');
 });
@@ -20,19 +21,56 @@ scraperAww.scrape( function ( err ) {
 //images to download. The scrape method will
 //downloads images and creates a single local web page
 //for viewing all of the images.
-function RedditScraper ( sub_, max_ ) {
+function RedditScraper ( sub_, min_, max_ ) {
   //private variables
 	var sub = sub_;
 	var nextUrl = 'http://www.reddit.com/r/' + sub;
 	var cnt = 0;
 	var max = max_;
+	var min = min_;
 	var myPage = "<ul>";
 	var activeDownloads = 0;
 	
 	var stampedName = sub + "_" + new Date().getTime();
-	var dir = "images/" + stampedName + "/";
-	
+	var rootPath = "images/";
+	var dir = rootPath + stampedName + "/";
+	var existingFiles = [];
 
+	var createListOfExistingFiles = function( callback_ , thisDir ) {
+		if ( thisDir == null) {
+			thisDir = rootPath;
+		}
+		fs.readdir( thisDir , function(err, files ) {
+			if ( err ) {
+				console.log("Could not read images directory (" + thisDir + "):" +err);
+				callback_(err);
+				return;
+			}
+			async.each( files, function (item, item_callback) {
+				console.log("dir: (" + item + "):");
+				var itemPath = thisDir + "/" + item;
+				fs.stat( itemPath, function ( err, stat) {
+					if ( err ) {
+						console.log("Could not stat image in directory (" + item + "):" +err);
+						item_callback();
+						return;
+					}
+					if ( stat.isFile() ) {
+						existingFiles.push(item);
+						item_callback();						
+					} else if (stat.isDirectory() ) {
+						createListOfExistingFiles( item_callback, itemPath );
+					} else {
+						item_callback();
+					};
+					return;
+				});
+			}, function (err) {
+				callback_(err);
+			} );
+		});
+	}
+	
 	var createDir = function( callback_ ) {
 		fs.exists(dir, function (exists) {
 			if (!exists) {
@@ -50,7 +88,7 @@ function RedditScraper ( sub_, max_ ) {
 
 	//public methods	
 	this.scrape = function( callback_ ) {
-		async.series([ createDir, requestAllUrls, writePage]);
+		async.series([ createListOfExistingFiles, createDir, requestAllUrls, writePage]);
 	}
 	
 	var writePage = function ( callback_ ) {
@@ -89,11 +127,19 @@ function RedditScraper ( sub_, max_ ) {
 			});
 			
 			imageLinks.each( function (i, el) {
+			
+				if ( cnt < min ) return;
+
 				debugger;
 				var href = el.attribs.href;
 				var text = el.children[0].data;
 				
 				var imageName = href.substr(href.lastIndexOf('/') + 1);
+
+				if ( existingFiles.indexOf(imageName) != -1) {
+					console.log("skipping " + imageName);
+					return;
+				}
 				
 				var localImageName = imageName;
 				var localImagePath = dir + localImageName;
