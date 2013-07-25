@@ -28,7 +28,7 @@ var deepFileListing = function( thisDir, itemFunction, callback_ ) {
 					item_callback();						
 				} else if (stat.isDirectory() ) {
 					debugger;
-					listRecursiveFiles( itemPath, itemFunction, item_callback );
+					deepFileListing( itemPath, itemFunction, item_callback );
 				} else {
 					item_callback();
 				};
