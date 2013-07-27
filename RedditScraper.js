@@ -3,7 +3,6 @@
 var RedditScraper = require('./FileUtility.js');
 
 var request = require('request');
-var cheerio = require('cheerio');
 var async = require('async');
 var fs = require ("fs");
 
@@ -16,7 +15,7 @@ module.exports = function RedditScraper ( sub_, rootImagePath_, min_, max_, exis
 	var existingFiles = existingFiles_;
   //private variables
 	var sub = sub_;
-	var nextUrl = 'http://www.reddit.com/r/' + sub;
+	var nextUrl = 'http://www.reddit.com/r/' + sub +'.json';
 
 	var max = max_;
 	var min = min_;
@@ -25,8 +24,12 @@ module.exports = function RedditScraper ( sub_, rootImagePath_, min_, max_, exis
 	var stampedName = sub + "_" + new Date().getTime();
 	var dir = rootPath + stampedName + "/";
 	
-	var cnt = 0;	
-	var myPage = "<ul>";
+	var cnt = 0;
+	//add a foundation.css to the page header
+	var myPage = "<head><meta charset=\"utf-8\" />\n"+
+		"<meta name=\"viewport\" content=\"width=device-width\" />\n"+
+		"<title>"+sub+"</title>\n"+
+		"<link rel=\"stylesheet\" href=\"../../css/foundation.css\" /></head>\n";
 	var activeDownloads = 0;
 	
 	var createDir = function( callback_ ) {
@@ -58,7 +61,7 @@ module.exports = function RedditScraper ( sub_, rootImagePath_, min_, max_, exis
 	//recursively calls until max reached
 	var requestAllUrls = function( callback_ ) {
 		async.whilst( function () {return (cnt < max)}, requestUrl, function (err) {
-			myPage += "</ul>";
+			myPage += "";
 			callback_(err);
 		} );
 	}
@@ -67,30 +70,35 @@ module.exports = function RedditScraper ( sub_, rootImagePath_, min_, max_, exis
 		console.log(nextUrl);
 		debugger;
 		
-		request.get( nextUrl, function(error, res, body) {
+		request.get( nextUrl, function(error, res, json) {
 
 			if ( error || res.statusCode != 200) {
 				console.log(error) // Print the web page.
 				callback_(error);
 				return;
 			}
+			//console.log(json);
+			var listing = JSON.parse(json);
+			//			console.log(listing.data.children);
+			var children = listing.data.children;
 			
-			var $ = cheerio.load(body);
-		
-			
-			var imageLinks = $("a.title").filter(function(i,el) {				
-				var href = el.attribs.href;
-				var fileType = href.slice ( href.lastIndexOf("."));
+			var imageLinks = children.filter( function( i ) {
+				debugger;
+				var href = i.data.url;
+				console.log(href);
+
+				var lastDotIndex = href.lastIndexOf(".");
+				var fileType = href.slice ( lastDotIndex);
 				return (fileType == ".gif" || fileType == ".jpg" || fileType == ".png");
 			});
 			
-			imageLinks.each( function (i, el) {
+			imageLinks.forEach( function (i) {
 			
 				if ( cnt < min ) return;
 
 				debugger;
-				var href = el.attribs.href;
-				var text = el.children[0].data;
+				var href = i.data.url;
+				var text = i.data.title;
 				
 				var imageName = href.substr(href.lastIndexOf('/') + 1);
 
@@ -114,11 +122,14 @@ module.exports = function RedditScraper ( sub_, rootImagePath_, min_, max_, exis
 					}
 				}).pipe(fs.createWriteStream( localImagePath ));				
 				
-				myPage += "<li>"+text+"<img src=\"" + localImageName+"\"></li>";				
+				myPage += "<div class=\"row\"><div class=\"large-12 columns\">"
+				myPage += text+"<img src=\"" + localImageName+"\"></div></div>";				
 			});
-									
-			nextUrl = $("p.nextprev a[rel^='nofollow next']").attr("href");			
-			
+								
+			var after = listing.data.after;
+			//nextUrl = $("p.nextprev a[rel^='nofollow next']").attr("href");			
+			nextUrl = 'http://www.reddit.com/r/' + sub +'.json?after='+after;
+				
 			cnt += 25;
 			callback_();
 		});
