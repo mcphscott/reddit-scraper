@@ -29,5 +29,13 @@ node scrape -r aww --pages 4 --library ./images
 
 Note: Scraping the images creates a single web page with all of the images on it. At around 200 images (with gifs), my browser gets overloaded.
 
-Note: Images flagged as 'over18' are skipped, i.e. hopefully not downloaded (but don't risk your job using my code.)
+Note: Images flagged as 'over18' are skipped, i.e. hopefully not downloaded (but don't risk your job using my code.) Read the MIT license before using.
+
+
+###License
+
+MIT
+
+
+
 
