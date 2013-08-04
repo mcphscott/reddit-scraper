@@ -102,6 +102,11 @@ module.exports = function RedditScraper ( sub_, rootImagePath_, min_, max_, exis
 				
 				var imageName = href.substr(href.lastIndexOf('/') + 1);
 
+				if (i.data.over_18) {
+					console.log("skipping over 18 images!");
+					return;
+				}
+				
 				if ( existingFiles.indexOf(imageName) != -1) {
 					console.log("skipping " + imageName);
 					return;
