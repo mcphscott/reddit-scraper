@@ -8,7 +8,7 @@ var deepFileListing = function( thisDir, itemFunction, callback_ ) {
 	
 	fs.readdir( thisDir , function(err, files ) {
 		if ( err ) {
-			console.log("Could not read images directory (" + thisDir + "):" +err);
+			console.log("Could not list directory (" + thisDir + "):" +err);
 			callback_(err);
 			return;
 		}
@@ -27,7 +27,6 @@ var deepFileListing = function( thisDir, itemFunction, callback_ ) {
 					//existingFiles.push(item);
 					item_callback();						
 				} else if (stat.isDirectory() ) {
-					debugger;
 					deepFileListing( itemPath, itemFunction, item_callback );
 				} else {
 					item_callback();
