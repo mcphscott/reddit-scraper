@@ -29,7 +29,7 @@ module.exports = function RedditScraper ( sub_, rootImagePath_, min_, max_, exis
 	var myPage = "<head><meta charset=\"utf-8\" />\n"+
 		"<meta name=\"viewport\" content=\"width=device-width\" />\n"+
 		"<title>"+sub+"</title>\n"+
-		"<link rel=\"stylesheet\" href=\"../../css/foundation.css\" /></head>\n";
+		"<link rel=\"stylesheet\" href=\"../../css/foundation.min.css\" /></head>\n";
 	var activeDownloads = 0;
 	
 	var createDir = function( callback_ ) {
