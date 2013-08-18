@@ -43,47 +43,47 @@ module.exports = function RedditScraper ( sub_, rootImagePath_, min_, max_, exis
 				});
 			} else {
 				callback_();
-			};
+			}
 		});
-	}
+	};
 
 	//public methods	
 	this.scrape = function( callback_ ) {
 		async.series([ createDir, requestAllUrls, writePage]);
-	}
+	};
 	
 	var writePage = function ( callback_ ) {
 		//write the html page for local viewing
 		fs.writeFile( dir + "index.html", myPage, callback_ );	
-	}	
+	};
 	
 	//public method for requesting url's
 	//recursively calls until max reached
 	var requestAllUrls = function( callback_ ) {
-		async.whilst( function () {return (cnt < max)}, requestUrl, function (err) {
+		async.whilst( function () {
+				return (cnt < max);
+			}, requestUrl,
+		function (err) {
 			myPage += "";
 			callback_(err);
 		} );
-	}
+	};
 	
 	var requestUrl = function( callback_ ) {
 		console.log(nextUrl);
-		debugger;
 		
 		request.get( nextUrl, function(error, res, json) {
 
 			if ( error || res.statusCode != 200) {
-				console.log(error) // Print the web page.
+				console.log(error); // Print the web page.
 				callback_(error);
 				return;
 			}
-			//console.log(json);
+
 			var listing = JSON.parse(json);
-			//			console.log(listing.data.children);
 			var children = listing.data.children;
 			
 			var imageLinks = children.filter( function( i ) {
-				debugger;
 				var href = i.data.url;
 				console.log(href);
 
@@ -96,7 +96,6 @@ module.exports = function RedditScraper ( sub_, rootImagePath_, min_, max_, exis
 			
 				if ( cnt < min ) return;
 
-				debugger;
 				var href = i.data.url;
 				var text = i.data.title;
 				
@@ -123,11 +122,11 @@ module.exports = function RedditScraper ( sub_, rootImagePath_, min_, max_, exis
 					console.log("downloaded " + href +", active downloads: " + activeDownloads);
 					activeDownloads --;
 					if ( error || res.statusCode != 200) {
-						console.log(error) // Print the web page.
+						console.log(error); // Print the web page.
 					}
 				}).pipe(fs.createWriteStream( localImagePath ));				
 				
-				myPage += "<div class=\"row\"><div class=\"large-12 columns\">"
+				myPage += "<div class=\"row\"><div class=\"large-12 columns\">";
 				myPage += text+"<img src=\"" + localImageName+"\"></div></div>";				
 			});
 								
@@ -140,7 +139,7 @@ module.exports = function RedditScraper ( sub_, rootImagePath_, min_, max_, exis
 		});
 		
 	};
-}
+};
 
 
 

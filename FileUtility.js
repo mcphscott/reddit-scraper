@@ -30,7 +30,7 @@ var deepFileListing = function( thisDir, itemFunction, callback_ ) {
 					deepFileListing( itemPath, itemFunction, item_callback );
 				} else {
 					item_callback();
-				};
+				}
 				return;
 			});
 		}, function (err) {
