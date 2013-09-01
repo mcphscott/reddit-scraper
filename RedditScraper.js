@@ -12,16 +12,16 @@ var fs = require ("fs");
 //images to download. The scrape method will
 //downloads images and creates a single local web page
 //for viewing all of the images.
-module.exports.scraperGen = function ( sub, dir, max, filter, imageCallback ) {
+module.exports.scraperGen = function ( sub, dir, pages, filter, imageCallback ) {
 	var cnt = 0;
 
 	//public method for requesting url's
 	//recursively calls until max reached
 	return function( callback_ ) {
-		var requestUrlFun = requestUrlGen ( sub, dir, max, filter, imageCallback );
+		var requestUrlFun = requestUrlGen ( sub, dir, pages, filter, imageCallback );
 		async.whilst( function () {
-				cnt += 25;
-				return (cnt < max);
+				cnt ++;
+				return (cnt <= pages);
 			}, requestUrlFun,
 			function (err) {
 				callback_(err);

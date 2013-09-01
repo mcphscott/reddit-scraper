@@ -14,7 +14,7 @@ var argv = require('optimist')
 	.default('pages', 4).argv;
 
 var sub = argv.r;
-var nItems = argv.pages * 25;
+var pages = argv.pages;
 
 var existingFiles = [];
 
@@ -66,7 +66,7 @@ var booleanLogger = function ( fun, trueLog, falseLog ) {
 
 var imageFilter = booleanLogger(filter,function(i) {console.log("found "+ i.data.url);}, function(i) {console.log("skipping "+ i.data.url);});
 var createDirFun = FileUtility.createDir( dir );
-var scraperFun = RedditScraper.scraperGen( sub, dir, nItems, imageFilter, imageCallback);
+var scraperFun = RedditScraper.scraperGen( sub, dir, pages, imageFilter, imageCallback);
 var writeLocalPageFun = FileUtility.writeFile ( dir + "index.html", myPage );
 
 FileUtility.deepFileListing( argv.library + "/", function( item) {
