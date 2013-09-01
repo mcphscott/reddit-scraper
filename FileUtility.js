@@ -40,4 +40,34 @@ var deepFileListing = function( thisDir, itemFunction, callback_ ) {
 	}); //end of readdir
 };
 
+//returns function to create directory with callback
+var createDir = function( dir ) {
+	return function ( callback_ ) {
+		debugger;
+		console.log("creating " + dir);
+		fs.exists(dir, function (exists) {
+			if (!exists) {
+				fs.mkdir( dir, function ( err ) {
+					if ( err ) {
+						console.log("Could not create directory (" + dir+ "):" +err);
+					}
+					callback_(err);
+				});
+			} else {
+				console.log("directory exists (" + dir+ "):");			
+				callback_();
+			}
+		});
+	};
+}
+
+var writeFile = function ( path, contentsArray ) {
+	return function (callback_) {
+		//write the html page for local viewing
+		fs.writeFile( path, contentsArray.join("\n"), callback_ );	
+	}
+};
+
 module.exports.deepFileListing = deepFileListing;
+module.exports.createDir = createDir;
+module.exports.writeFile = writeFile;
