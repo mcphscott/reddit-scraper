@@ -64,13 +64,19 @@ var booleanLogger = function ( fun, trueLog, falseLog ) {
 	}
 }
 
+//create the functions to be called by async.series
+//deepFileListing gets a list of images already downloaded.
 var deepFileListingFun = FileUtility.deepFileListing( argv.library + '/', function (item) {existingFiles.push(item);});
+// The filter skips images that have already been downloaded
 var imageFilter = booleanLogger(filter,function(i) {console.log("found "+ i.data.url);}, function(i) {console.log("skipping "+ i.data.url);});
+//the create directory function simply creates a new destination directory for the images
 var createDirFun = FileUtility.createDir( dir );
+//the scraper function downloads the images and calls the image callback for each image, which adds to the local web page.
 var scraperFun = RedditScraper.scraperGen( sub, dir, pages, imageFilter, imageCallback);
+//write the web page.
 var writeLocalPageFun = FileUtility.writeFile ( dir + "index.html", myPage );
 
 //do it!
-async.series( [deepFileListingFun, createDirFun, scraperFun, writeLocalPageFun], function(err, results){
+async.series( [deepFileListingFun, createDirFun, scraperFun, function(callback_) {myPage.push("</div>");callback_();}, writeLocalPageFun], function(err, results){
  if ( err != null) console.log(err);});	
 
