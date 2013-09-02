@@ -77,6 +77,6 @@ var scraperFun = RedditScraper.scraperGen( sub, dir, pages, imageFilter, imageCa
 var writeLocalPageFun = FileUtility.writeFile ( dir + "index.html", myPage );
 
 //do it!
-async.series( [deepFileListingFun, createDirFun, scraperFun, function(callback_) {myPage.push("</div>");callback_();}, writeLocalPageFun], function(err, results){
+async.series( [deepFileListingFun, createDirFun, scraperFun, writeLocalPageFun], function(err, results){
  if ( err != null) console.log(err);});	
 
