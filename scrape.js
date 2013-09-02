@@ -64,15 +64,13 @@ var booleanLogger = function ( fun, trueLog, falseLog ) {
 	}
 }
 
+var deepFileListingFun = FileUtility.deepFileListing( argv.library + '/', function (item) {existingFiles.push(item);});
 var imageFilter = booleanLogger(filter,function(i) {console.log("found "+ i.data.url);}, function(i) {console.log("skipping "+ i.data.url);});
 var createDirFun = FileUtility.createDir( dir );
 var scraperFun = RedditScraper.scraperGen( sub, dir, pages, imageFilter, imageCallback);
 var writeLocalPageFun = FileUtility.writeFile ( dir + "index.html", myPage );
 
-FileUtility.deepFileListing( argv.library + "/", function( item) {
-	existingFiles.push(item);
-},
-function (err) {
-	async.series( [createDirFun, scraperFun, writeLocalPageFun] );	
-});
+//do it!
+async.series( [deepFileListingFun, createDirFun, scraperFun, writeLocalPageFun], function(err, results){
+ if ( err != null) console.log(err);});	
 
